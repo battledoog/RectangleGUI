@@ -111,7 +111,12 @@ public class DrawRectangleGUI extends Application {
 
 		// clear drawing button
 		clearButton = new Button("Clear");
-		clearButton.setOnAction(this::clearButtonHandler);
+		clearButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				drawBox.getChildren().clear();
+			}
+		});
 
 		// nest the panes together
 		VBox nestedPanes = new VBox(colorSelectionBox, borderSizeBox, clearButton);
