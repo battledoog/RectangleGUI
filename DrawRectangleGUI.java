@@ -93,12 +93,11 @@ public class DrawRectangleGUI extends Application {
 		thinBorder.setToggleGroup(borderToggleGroup);
 		thickBorder.setToggleGroup(borderToggleGroup);
 		thinBorder.setSelected(true);
-		
-		//is this the right pane?-------------------------------------------------
+
 		mainPane.setOnMouseClicked(this::handleMouse);
 		mainPane.setOnMouseMoved(this::handleMouse);
 		mainPane.setOnMouseReleased(this::handleMouse);
-		mainPane.getChildren().add(dragBox);
+		drawBox.getChildren().add(dragBox);
 
 		red.setOnAction(this::handleColorToggleGroup);
 		blue.setOnAction(this::handleColorToggleGroup);
@@ -135,48 +134,67 @@ public class DrawRectangleGUI extends Application {
 	}
 
 	// set pen/stroke color
-	public void handleColorToggleGroup(ActionEvent event) {
+	private void handleColorToggleGroup(ActionEvent event) {
 		if (red.isSelected()) {
-			dragBox.setStroke(Color.RED);
+			color = Color.RED;
 		} else if (blue.isSelected()) {
-			dragBox.setStroke(Color.BLUE);
+			color = Color.BLUE;
 		} else if (yellow.isSelected()) {
-			dragBox.setStroke(Color.YELLOW);
+			color = Color.YELLOW;
 		}
 	}
 
 	// set border size
-	public void handleBorderToggleGroup(ActionEvent event) {
+	private void handleBorderToggleGroup(ActionEvent event) {
 		if (thinBorder.isSelected()) {
-			dragBox.setStrokeWidth(THIN_BORDER_WIDTH);
+			strokeWidth = THIN_BORDER_WIDTH;
 		} else if (thickBorder.isSelected()) {
-			dragBox.setStrokeWidth(THICK_BORDER_WIDTH);
+			strokeWidth = THICK_BORDER_WIDTH;
 		}
 	}
 
 	// set shape fill on or off
-	public void handleFillCheckBox(ActionEvent event) {
-		if (fillShape.isSelected()) {
-			dragBox.setFill(Color.BLACK);
-		} else {
-			dragBox.setFill(Color.TRANSPARENT);
-		}
+	private void handleFillCheckBox(ActionEvent event) {
+		fill = fillShape.isSelected();
 	}
 
 	// draw lines when mouse clicked
 	// stop the lines when mouse button released
-	public void handleMouse(MouseEvent event) {
+	private void handleMouse(MouseEvent event) {
 		if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-			dragBox.setVisible(true);
-			dragBox.setTranslateX(event.getX());
-			dragBox.setTranslateY(event.getY());
+			if (isDragging) {
+				isDragging = false;
+			}
+			else {
+				Rectangle newDragBox = new Rectangle(event.getX(), event.getY(), 0, 0);
+				newDragBox.setFill(fill ? color : Color.TRANSPARENT);
+				newDragBox.setStroke(color);
+				newDragBox.setStrokeWidth(strokeWidth);
+				newDragBox.setVisible(true);
+				dragBoxes.add(newDragBox);
+				dragBox = newDragBox;
+				drawBox.getChildren().add(dragBox);
+				dragStartX = event.getX();
+				dragStartY = event.getY();
+				isDragging = true;
+			}
 		}
-		if (event.getEventType() == MouseEvent.MOUSE_MOVED && dragBox.isVisible()) {
-			dragBox.setWidth(event.getX() - dragBox.getTranslateX());
-			dragBox.setHeight(event.getY() - dragBox.getTranslateY());
-		}
-		if (event.getEventType() == MouseEvent.MOUSE_RELEASED) { //probably need to change this to allow for boxes stay drawn
-			dragBox.setVisible(false);
+		if (event.getEventType() == MouseEvent.MOUSE_MOVED && isDragging) {
+			if (event.getX() < dragStartX) {
+				dragBox.setX(event.getX());
+				dragBox.setWidth(dragStartX - event.getX());
+			}
+			else {
+				dragBox.setWidth(event.getX() - dragStartX);
+			}
+
+			if (event.getY() < dragStartY) {
+				dragBox.setY(event.getY());
+				dragBox.setHeight(dragStartY - event.getY());
+			}
+			else {
+				dragBox.setHeight(event.getY() - dragStartY);
+			}
 		}
 	}
 
