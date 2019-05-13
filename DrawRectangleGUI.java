@@ -1,8 +1,6 @@
-package application;
-
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,53 +10,55 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-/*Still need to: 
- * setup display for the drawBox -- I added border and used padding. Will this work?
- * add second shape if you wanna do extra credit stuff -- maybe circle?
- * 
- * I also don't really like how hers is aligned, tbh. I guess we can just roll with it anyway.
- * 
- */
-public class DrawRectangleGUI extends Application {
-	Button clearButton;
-	RadioButton red, yellow, blue, thinBorder, thickBorder;
-	CheckBox fillShape;
-	Rectangle dragBox;
-	Circle dragCircle; // extra credit?
+import java.util.ArrayList;
+import java.util.List;
 
-	static final double THIN_BORDER_WIDTH = 0.5;
-	static final double THICK_BORDER_WIDTH = 2.0;
+public class DrawRectangleGUI extends Application {
+	private Pane drawBox;
+	private Button clearButton;
+	private RadioButton red, yellow, blue, thinBorder, thickBorder;
+	private CheckBox fillShape;
+	private Rectangle dragBox;
+	private List<Rectangle> dragBoxes;
+	private Circle dragCircle; // extra credit?
+	private Boolean isDragging = false;
+	private double dragStartX = 0.0;
+	private double dragStartY = 0.0;
+	private Color color = Color.RED;
+	private Boolean fill = false;
+	private double strokeWidth = THIN_BORDER_WIDTH;
+
+	private static final double THIN_BORDER_WIDTH = 0.5;
+	private static final double THICK_BORDER_WIDTH = 5.0;
 
 	public void start(Stage primaryStage) throws Exception {
 
 		VBox mainPane = new VBox();
 		
-		Text newText = new Text("Meow");
-		HBox drawBox = new HBox(newText);
-		drawBox.setAlignment(Pos.CENTER);
-		drawBox.setSpacing(10);
-		drawBox.setPadding(new Insets(197));
+		drawBox = new Pane();
+		drawBox.setPrefHeight(430);
 		String cssLayout = "-fx-border-color: black;\n" + "-fx-border-insets: 7;\n" + "-fx-border-width: 2;\n";
 		
 		drawBox.setStyle(cssLayout);
 
-		dragBox = new Rectangle(0, 0, 0, 0);
-		dragBox.setVisible(false);
+		dragBoxes = new ArrayList<>();
+
+		dragBox = new Rectangle();
 		dragBox.setFill(Color.TRANSPARENT);
 		dragBox.setStroke(Color.RED);
+		dragBox.setVisible(false);
 		
 		dragCircle = new Circle(0, 0, 0); // extra credit?
 		dragCircle.setVisible(false);
 		dragCircle.setFill(Color.TRANSPARENT);
 		dragCircle.setStroke(Color.RED);
-		
 		
 		// color option radio buttons
 		red = new RadioButton("Red");
